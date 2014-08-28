@@ -1,2 +1,18 @@
 
 data/exploits/framework/BasicExploit.py
+
+*.php
+
+*.php
+
+*.css
+
+*.png
+
+*.gif
+
+*.js
+
+reports/Exploit.log
+
+reports/TestResults.csv
