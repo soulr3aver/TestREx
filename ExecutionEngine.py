@@ -12,38 +12,38 @@ import settings
 import glob
 
 class ExecutionEngine():
-    
+
     def __init__(self):
         self.docker_client = docker.Client(base_url=settings.docker_url, version=settings.docker_version, timeout=10)
         self.docker_containers = []
         self.docker_images = []
         self.config_files = []
-    
-    #runs all "native" exploits for all "native" applications    
+
+    #runs all "native" exploits for all "native" applications
     def run_all(self, target):
-        spoiling_started = False            
+        spoiling_started = False
         try:
             for file_ in glob.glob(settings.exploits_path+"*.py"):
                 if (os.path.basename(file_) == "__init__.py"):
-                    continue 
+                    continue
                 module_ = imp.load_source("Exploit", file_)
                 class_ = getattr(module_, "Exploit")
                 instance = class_()
-                
+
                 if (not hasattr(instance, "attributes") or not "Target" in instance.attributes.keys()):
-                    continue                
-                
-                target_app = instance.attributes["Target"]                  
+                    continue
+
+                target_app = instance.attributes["Target"]
                 target_container = instance.attributes["Container"]
                 target_container = "ubuntu-apache-mysql" if (target_container == None) else target_container
-                
+
                 if (target and target != settings.configurations_path + target_app + "__" + target_container):
                     continue
                 if (target_app != None or target_app != ""):
                     try:
                         config_path = settings.configurations_path + target_app + "__" + target_container
                         exploit_path = file_
-                        
+
                         if (os.path.exists(config_path) and os.path.exists(settings.applications_path + target_app)):
                             if (not settings.spoiled_mode):
                                 self.run(config_path, exploit_path)
@@ -55,9 +55,9 @@ class ExecutionEngine():
                         else:
                             print("Target application or exploit is not found, skipping...")
                     except:
-                        self.print_engine_exception()        
+                        self.print_engine_exception()
         finally:
-            self.clean_environment()           
+            self.clean_environment()
 
     #runs the execution engine, with a given configuration (app+container)
     #and exploit, writes a report and cleans the environment
@@ -68,7 +68,7 @@ class ExecutionEngine():
             self.run_application(configuration_path)
             self.inject_exploits(exploit_path)
         except:
-            self.print_engine_exception()         
+            self.print_engine_exception()
         finally:
             self.clean_environment()
 
@@ -80,37 +80,53 @@ class ExecutionEngine():
             self.run_application(os.path.join(settings.configurations_path, app_config))
             signal.signal(signal.SIGINT, self.signal_handler)
             print("...the application is up and running!\nPress Ctr+C to terminate")
-            signal.pause()			
-        except:   
+            signal.pause()
+        except:
             self.print_engine_exception()
-        
+
     #run an application in a given container
     def run_application(self, configuration_path):
-        
+
         configuration_name = os.path.basename(configuration_path)
         application_name = configuration_name.split("__")[0]
         application_path = settings.applications_path + application_name
         image_name = "testbed/" + configuration_name
-    
-        print("Running '%s' application with container '%s'..." % (application_name, image_name))
 
-        for _file in os.listdir(configuration_path):
-            self.config_files.append(application_path+"/"+_file)
-            shutil.copy(configuration_path+"/"+_file, application_path)
-    
-        p = subprocess.Popen(["docker", "build", "-t", image_name, "."], cwd=application_path)
+        print("Running '%s' application with container '%s'..." % (application_name, image_name))
+        image_exists = False
+        for image in self.docker_client.images():
+            if (image_name == image["Repository"]):
+                print("The '%s' image already exists..." % image_name)
+                image_exists = True
+
+        if (not settings.persistent):
+            if (image_exists):
+                print("Removing the old persistent image...")
+                self.docker_client.remove_image(image_name)
+            self.build_image(configuration_path, application_path, image_name)
+            self.docker_images.append(image_name)
+        else:
+            if (not image_exists):
+                self.build_image(configuration_path, application_path, image_name)
+
+        container_id = self.start_container(image_name)
+        self.docker_containers.append(container_id)
+
+    def build_image(self, config_path, app_path, image_name):
+        print("Copying the application files...")
+        for _file in os.listdir(config_path):
+            self.config_files.append(app_path+"/"+_file)
+            shutil.copy(config_path+"/"+_file, app_path)
+        print("Building the '%s' image..." % image_name)
+        p = subprocess.Popen(["docker", "build", "-t", image_name, "."], cwd=app_path)
         p.wait()
-        image_id = re.split(" *", subprocess.check_output(["docker", "images"]).split("\n")[1])[2]
-        
+
+    def start_container(self, image_name):
         container_id = self.docker_client.create_container(image_name, ports=[8888], dns="8.8.8.8")
         self.docker_client.start(container_id, port_bindings={settings.mapped_port_in:settings.mapped_port_out})
+        return container_id
 
-        self.docker_containers.append(container_id)
-        self.docker_images.append(image_id)
-
-        time.sleep(5)
-  
-    def inject_exploits(self, exploit_path):        
+    def inject_exploits(self, exploit_path):
         #EXPERIMENTAL: run BugBox eploits -- replace their urls with our mapped ports and then
         #load the exploit
         exploitClassName = "Exploit"
@@ -118,15 +134,15 @@ class ExecutionEngine():
             exploit = open(exploit_path,'r')
             exploit_temp_path = exploit_path.replace(".py", "_temp.py")
             exploit_temp = open(exploit_temp_path,'w')
-            
+
             for line in exploit.readlines():
                 new_line = line.replace("localhost", "localhost:"+str(settings.mapped_port_out))
                 new_line = new_line.replace("127.0.0.1", "localhost:"+str(settings.mapped_port_out))
                 exploit_temp.write(new_line)
-            
+
             exploit.close()
             exploit_temp.close()
-          
+
             sys.path.append(os.path.dirname(exploit_temp_path))
             exploitModule = imp.load_source(exploitClassName, exploit_temp_path)
 
@@ -134,11 +150,11 @@ class ExecutionEngine():
             exploitModule = imp.load_source(exploitClassName, exploit_path)
 
         exploitClass = getattr(exploitModule, exploitClassName)
-        exploitInstance = exploitClass()        
-        
+        exploitInstance = exploitClass()
+
         if ("bugbox" in exploit_path):
             exploitInstance.exploit()
-            self.normalize_bugbox_info(exploitInstance)            
+            self.normalize_bugbox_info(exploitInstance)
         else:
             exploitInstance.exploit(settings.report_verbosity)
             self.write_log(exploitInstance.__class__.__name__, exploitInstance.Log)
@@ -154,8 +170,11 @@ class ExecutionEngine():
 
     #writes the collected data into a report
     def write_log(self, filename, log):
-        _file = open(settings.current_path + "/reports/%s.log" % filename, "a+")         
-        _file.write(log.getvalue())          
+        reports_folder = settings.current_path + "/reports"
+        if not os.path.exists(reports_folder):
+            os.makedirs(reports_folder)
+        _file = open(reports_folder + "/%s.log" % filename, "a+")
+        _file.write(log.getvalue())
         _file.close()
 
     def write_testrun_info(self, instance, filename):
@@ -174,7 +193,7 @@ class ExecutionEngine():
                    startup_ok,
                    result,
                    time_spent,
-                   attributes["Description"])              
+                   attributes["Description"])
         _file.write(csv)
         _file.close()
         print("Results are saved to: %s" % filename)
@@ -212,6 +231,5 @@ class ExecutionEngine():
 
     def print_engine_exception(self):
         print("ExecutionEngine EXCEPTION:\n")
-        traceback.print_exc()   
-        print("\n")               
-    
+        traceback.print_exc()
+        print("\n")

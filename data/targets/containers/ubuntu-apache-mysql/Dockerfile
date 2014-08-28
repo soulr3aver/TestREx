@@ -1,4 +1,4 @@
-FROM ubuntu:lucid
+FROM ubuntu:13.10
 MAINTAINER danielrs
 
 RUN apt-get update
@@ -8,5 +8,3 @@ RUN chown -R www-data:www-data /var/www/
 EXPOSE 80 3306
 
 CMD ["mysqld"]
-
-

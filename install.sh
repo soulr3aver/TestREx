@@ -14,11 +14,12 @@ apt-get -q -y install lxc-docker-0.9.0
 # install Python package manager
 apt-get -q -y install python-pip
 
-# install Docker and Selenium Python bindings
+# install python bindings and other required software
 pip install selenium
 pip install docker-py
+pip install pyvirtualdisplay
+apt-get -q -y install xvfb
 apt-get -q -y install cgroup-lite
 
 # reboot the PC
 reboot
-

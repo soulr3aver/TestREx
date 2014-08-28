@@ -1,4 +1,4 @@
-FROM ubuntu:raring
+FROM ubuntu:trusty
 MAINTAINER stanislav
 
 RUN apt-get update
@@ -10,7 +10,3 @@ ADD . /var/www/webgoat/
 EXPOSE 80
 
 CMD cd /var/www/webgoat/ && sh webgoat.sh start80
-
-
-
-

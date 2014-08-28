@@ -7,8 +7,8 @@ docker_url_other = "tcp://localhost:4243"
 docker_url = docker_url_linux if _platform.lower().startswith("linux") else docker_url_other
 docker_version = "0.9"
 
-mapped_port_in = 80 # for apache
-#mapped_port_in = 8888 # for node
+#mapped_port_in = 80   # for apache
+mapped_port_in = 8888 # for node
 mapped_port_out = 49160
 
 report_verbosity = "DEBUG"
@@ -30,4 +30,3 @@ containers_path = current_path + "/data/targets/containers/"
 exploits_path = current_path + "/data/exploits/"
 
 ################################################################################
-
