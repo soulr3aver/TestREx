@@ -66,6 +66,7 @@ class ExecutionEngine():
             configuration_path = os.path.join(settings.configurations_path, app_config)
             exploit_path = os.path.join(settings.exploits_path, exploit)
             self.run_application(configuration_path)
+            time.sleep(5) 
             self.inject_exploits(exploit_path)
         except:
             self.print_engine_exception()
@@ -93,6 +94,7 @@ class ExecutionEngine():
         image_name = "testbed/" + configuration_name
 
         print("Running '%s' application with container '%s'..." % (application_name, image_name))
+
         image_exists = False
         for image in self.docker_client.images():
             if (image_name == image["Repository"]):
@@ -111,6 +113,8 @@ class ExecutionEngine():
 
         container_id = self.start_container(image_name)
         self.docker_containers.append(container_id)
+
+
 
     def build_image(self, config_path, app_path, image_name):
         print("Copying the application files...")
