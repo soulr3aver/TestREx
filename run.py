@@ -35,15 +35,15 @@ if __name__ == "__main__":
     parser.add_option("--visible", action="store_true", dest="visible", default=settings.browser_visible,
                       help="This flag indicates if browser is visible during the exploit execution")
 
-    parser.add_option("--persistent", action="store_true", dest="persistent", default=False,
-                        help="This flag indicates whether the app-specific container image should be preserved after the run")
+    parser.add_option("--disposable", action="store_true", dest="disposable", default=False,
+                        help="This flag indicates whether the app-specific container image should be disposed after the run")
 
 
 
     (options, args) = parser.parse_args()
 
     ex = ExecutionEngine()
-    settings.persistent = options.persistent
+    settings.disposable = options.disposable
 
     if (options.visible):
         settings.browser_visible = options.visible

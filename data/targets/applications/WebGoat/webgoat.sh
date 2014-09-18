@@ -34,7 +34,7 @@ fi
 
 case "$1" in
 	start80)
-		cp -f $CATALINA_HOME/conf/server_80.xml $CATALINA_HOME/conf/server.xml 
+		cp -f $CATALINA_HOME/conf/server_80.xml $CATALINA_HOME/conf/server.xml
 		$CATALINA_HOME/bin/startup.sh
 		printf "\n  Open http://127.0.0.1/WebGoat/attack"
 		printf "\n  Username: guest"
@@ -44,7 +44,7 @@ case "$1" in
 		tail -f $CATALINA_HOME/logs/catalina.out
 	;;
 	start8080)
-		cp -f $CATALINA_HOME/conf/server_8080.xml $CATALINA_HOME/conf/server.xml 
+		cp -f $CATALINA_HOME/conf/server_8080.xml $CATALINA_HOME/conf/server.xml
 		$CATALINA_HOME/bin/startup.sh
 		printf "\n  Open http://127.0.0.1:8080/WebGoat/attack"
 		printf "\n  Username: guest"

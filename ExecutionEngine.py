@@ -1,7 +1,6 @@
 import docker
 import imp
 import os
-import re
 import shutil
 import signal
 import subprocess
@@ -66,7 +65,7 @@ class ExecutionEngine():
             configuration_path = os.path.join(settings.configurations_path, app_config)
             exploit_path = os.path.join(settings.exploits_path, exploit)
             self.run_application(configuration_path)
-            time.sleep(5) 
+            time.sleep(5)
             self.inject_exploits(exploit_path)
         except:
             self.print_engine_exception()
@@ -101,7 +100,7 @@ class ExecutionEngine():
                 print("The '%s' image already exists..." % image_name)
                 image_exists = True
 
-        if (not settings.persistent):
+        if (settings.disposable):
             if (image_exists):
                 print("Removing the old persistent image...")
                 self.docker_client.remove_image(image_name)

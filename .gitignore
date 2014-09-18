@@ -13,10 +13,14 @@ data/exploits/framework/BasicExploit.py
 
 *.js
 
+*.pyc
+
 reports/Exploit.log
 
 reports/TestResults.csv
 
 settings.py
 
-data/exploits/Wordpress_3_2_Test.py
+data/targets/applications
+data/exploits
+data/payloads
