@@ -1,6 +1,4 @@
 
-data/exploits/framework/BasicExploit.py
-
 *.php
 
 *.php
@@ -23,4 +21,3 @@ settings.py
 
 data/targets/applications
 data/exploits
-data/payloads
