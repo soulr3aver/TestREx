@@ -79,7 +79,7 @@ class ExecutionEngine():
         try:
             self.run_application(os.path.join(settings.configurations_path, app_config))
             signal.signal(signal.SIGINT, self.signal_handler)
-            print("...the application is up and running!\nPress Ctr+C to terminate")
+            print("...the application is up and running!\nPress Ctr+C to stop the container.")
             signal.pause()
         except:
             self.print_engine_exception()
@@ -227,7 +227,7 @@ class ExecutionEngine():
     def signal_handler(self, signal, frame):
         self.clean_environment()
         try:
-            print("\nApp-specific container is destroyed!")
+            print("\nApp-specific container has been stopped.")
             sys.exit(0)
         except:
             pass
