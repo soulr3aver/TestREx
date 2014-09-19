@@ -74,8 +74,12 @@ if __name__ == "__main__":
             if (options.batch_config):
                 settings.spoiled_mode = False if (options.image == None) else options.spoiled
                 ex.run_all(options.image)
+            else:
+                print("\nWARNING: Please select a running mode.")    
+                parser.print_help()
     else:
         if (options.batch_config):
             ex.run_all(None)
         else:
+            print("\nWARNING: Please select a running mode.")
             parser.print_help()
