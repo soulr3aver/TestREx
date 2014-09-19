@@ -65,7 +65,6 @@ class ExecutionEngine():
             configuration_path = os.path.join(settings.configurations_path, app_config)
             exploit_path = os.path.join(settings.exploits_path, exploit)
             self.run_application(configuration_path)
-            time.sleep(5)
             self.inject_exploits(exploit_path)
         except:
             self.print_engine_exception()
@@ -79,7 +78,7 @@ class ExecutionEngine():
         try:
             self.run_application(os.path.join(settings.configurations_path, app_config))
             signal.signal(signal.SIGINT, self.signal_handler)
-            print("...the application is up and running!\nPress Ctr+C to stop the container.")
+            print("...the application is up and running!\nPress Ctr+C to stop the image...")
             signal.pause()
         except:
             self.print_engine_exception()
@@ -112,7 +111,7 @@ class ExecutionEngine():
 
         container_id = self.start_container(image_name)
         self.docker_containers.append(container_id)
-
+        time.sleep(5)
 
 
     def build_image(self, config_path, app_path, image_name):

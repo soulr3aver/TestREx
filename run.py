@@ -13,8 +13,16 @@ if __name__ == "__main__":
                       help="Enable verbose output from exploits", metavar="VERBOSE")
 
     #option for running a single application
-    parser.add_option("--manual", action="store", dest="manual_config",
+    parser.add_option("--manual", action="store_true", dest="manual_config",
                       help="Manual run mode", metavar="APP__CONTAINER")
+
+    #option for running all exploits in a batch
+    parser.add_option("--batch", action="store_true", dest="batch_config",
+                      help="Batch run mode", metavar="BATCH__RUN")
+
+    parser.add_option("--image", action="store", dest="image",
+                      help="Batch run mode", metavar="IMAGE")
+
 
     #specify mapped_port_in for the server (the default is "8888" for node.js)
     parser.add_option("--mappedPort", action="store", dest="mapped_port",
@@ -22,9 +30,6 @@ if __name__ == "__main__":
 
     parser.add_option("--results", action="store", dest="results_filename", default = settings.results_filename,
                       help="Destination file of test results", metavar="RESULTS")
-
-    parser.add_option("--target", action="store", dest="target_app", default=None,
-                      help="Target application-specific container", metavar="APP__CONTAINER")
 
     parser.add_option("--exploit", action="store", dest="exploit",
                       help="Exploit that must be run on the target application-specific container", metavar="EXPLOIT.py")
@@ -59,13 +64,18 @@ if __name__ == "__main__":
     if (options.results_filename):
         settings.results_filename = options.results_filename
 
-    if (options.target_app):
-        options.target_app = os.path.join(settings.configurations_path, options.target_app)
-
-    if (options.exploit):
-        ex.run(options.target_app, options.exploit)
-    elif(options.manual_config):
-        ex.run_manual(options.manual_config)
+    if (options.image):
+        options.image = os.path.join(settings.configurations_path, options.image)
+        if (options.exploit):
+            ex.run(options.image, options.exploit)
+        elif(options.manual_config):
+            ex.run_manual(options.image)
+        else:
+            if (options.batch_config):
+                settings.spoiled_mode = False if (options.image == None) else options.spoiled
+                ex.run_all(options.image)
     else:
-        settings.spoiled_mode = False if (options.target_app == None) else options.spoiled
-        ex.run_all(options.target_app)
+        if (options.batch_config):
+            ex.run_all(None)
+        else:
+            parser.print_help()
