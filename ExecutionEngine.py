@@ -18,9 +18,8 @@ class ExecutionEngine():
         self.docker_images = []
         self.config_files = []
 
-    #runs all "native" exploits for all "native" applications
-    def run_all(self, target):
-        spoiling_started = False
+    def run_batch_single(self, image_path):
+        is_spoiled = False
         try:
             for file_ in glob.glob(settings.exploits_path+"*.py"):
                 if (os.path.basename(file_) == "__init__.py"):
@@ -32,31 +31,25 @@ class ExecutionEngine():
                 if (not hasattr(instance, "attributes") or not "Target" in instance.attributes.keys()):
                     continue
 
-                target_app = instance.attributes["Target"]
-                target_container = instance.attributes["Container"]
-                target_container = "ubuntu-apache-mysql" if (target_container == None) else target_container
-
-                if (target and target != settings.configurations_path + target_app + "__" + target_container):
-                    continue
-                if (target_app != None or target_app != ""):
+                target = instance.attributes["Target"]
+                image_name = os.path.basename(image_path).split("__")[0]
+                if ((target != None) and (target == image_name)):
                     try:
-                        config_path = settings.configurations_path + target_app + "__" + target_container
-                        exploit_path = file_
-
-                        if (os.path.exists(config_path) and os.path.exists(settings.applications_path + target_app)):
-                            if (not settings.spoiled_mode):
-                                self.run(config_path, exploit_path)
-                            else:
-                                if (not spoiling_started):
-                                    self.run_application(config_path)
-                                    spoiling_started = True
-                                self.inject_exploits(exploit_path)
+                        if (not settings.spoiled_mode):
+                            self.run(image_path, file_)
                         else:
-                            print("Target application or exploit is not found, skipping...")
+                            if (not is_spoiled):
+                                self.run_application(image_path)
+                                is_spoiled = True
+                            self.inject_exploits(file_)
                     except:
                         self.print_engine_exception()
         finally:
             self.clean_environment()
+
+    def run_batch(self):
+        for image_path in glob.glob(settings.configurations_path + "/*"):
+            self.run_batch_single(image_path)
 
     #runs the execution engine, with a given configuration (app+container)
     #and exploit, writes a report and cleans the environment
