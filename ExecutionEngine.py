@@ -87,10 +87,11 @@ class ExecutionEngine():
         print("Running '%s' application with container '%s'..." % (application_name, image_name))
 
         image_exists = False
-        for image in self.docker_client.images():
-            if (image_name == image["Repository"]):
-                print("The '%s' image already exists..." % image_name)
-                image_exists = True
+        try:
+            image = self.docker_client.images(name=image_name)[0]
+            image_exists = True
+        except:
+            pass
 
         if (settings.disposable):
             if (image_exists):
