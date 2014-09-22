@@ -88,7 +88,7 @@ class ExecutionEngine():
 
         image_exists = False
         try:
-            image = self.docker_client.images(name=image_name)[0]
+            self.docker_client.images(name=image_name)[0]
             image_exists = True
         except:
             pass
@@ -162,7 +162,6 @@ class ExecutionEngine():
         instance.attributes["Container"] = "ubuntu-apache-mysql"
         instance.time_spent = "N/A"
         instance.startup_ok = "SUCCESS"
-        instance.startup_clean = "CLEAN"
 
     #writes the collected data into a report
     def write_log(self, filename, log):
