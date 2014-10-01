@@ -8,6 +8,7 @@ import time
 import traceback
 import settings
 import glob
+import subprocess
 
 class ExecutionEngine():
 
@@ -112,9 +113,9 @@ class ExecutionEngine():
             self.config_files.append(app_path+"/"+_file)
             shutil.copy(config_path+"/"+_file, app_path)
         print("Building the '%s' image..." % image_name)
-        self.docker_client.build(path=app_path, tag=image_name, rm=True)
-        time.sleep(5)        
-
+        p = subprocess.Popen(["docker", "build", "-t", image_name, "."], cwd=app_path)
+        p.wait()
+  
     def start_container(self, image_name):
         container_id = self.docker_client.create_container(image_name, ports=[8888])
         self.docker_client.start(container_id, port_bindings={settings.mapped_port_in:settings.mapped_port_out}, dns="8.8.8.8")
