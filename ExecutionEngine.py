@@ -13,7 +13,7 @@ import glob
 class ExecutionEngine():
 
     def __init__(self):
-        self.docker_client = docker.Client(base_url=settings.docker_url, version=settings.docker_version, timeout=10)
+        self.docker_client = docker.Client(base_url=settings.docker_url, timeout=10)
         self.docker_containers = []
         self.docker_images = []
         self.config_files = []
@@ -78,7 +78,6 @@ class ExecutionEngine():
 
     #run an application in a given container
     def run_application(self, configuration_path):
-
         configuration_name = os.path.basename(configuration_path)
         application_name = configuration_name.split("__")[0]
         application_path = settings.applications_path + application_name
@@ -107,19 +106,19 @@ class ExecutionEngine():
         self.docker_containers.append(container_id)
         time.sleep(5)
 
-
+    
     def build_image(self, config_path, app_path, image_name):
         print("Copying the application files...")
         for _file in os.listdir(config_path):
             self.config_files.append(app_path+"/"+_file)
             shutil.copy(config_path+"/"+_file, app_path)
         print("Building the '%s' image..." % image_name)
-        p = subprocess.Popen(["docker", "build", "-t", image_name, "."], cwd=app_path)
-        p.wait()
+        self.docker_client.build(path=app_path, tag=image_name, rm=True)
+        time.sleep(5)        
 
     def start_container(self, image_name):
-        container_id = self.docker_client.create_container(image_name, ports=[8888], dns="8.8.8.8")
-        self.docker_client.start(container_id, port_bindings={settings.mapped_port_in:settings.mapped_port_out})
+        container_id = self.docker_client.create_container(image_name, ports=[8888])
+        self.docker_client.start(container_id, port_bindings={settings.mapped_port_in:settings.mapped_port_out}, dns="8.8.8.8")
         return container_id
 
     def inject_exploits(self, exploit_path):
@@ -210,6 +209,7 @@ class ExecutionEngine():
     def delete_images(self):
         for image_id in self.docker_images:
             self.docker_client.remove_image(image_id)
+
 
     def delete_files(self):
         for _file in self.config_files:

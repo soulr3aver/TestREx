@@ -5,7 +5,6 @@ docker_url_linux = "unix://var/run/docker.sock"
 docker_url_other = "tcp://localhost:4243"
 
 docker_url = docker_url_linux if _platform.lower().startswith("linux") else docker_url_other
-docker_version = "0.9"
 
 #mapped_port_in = 80   # for apache
 mapped_port_in = 8888 # for node
