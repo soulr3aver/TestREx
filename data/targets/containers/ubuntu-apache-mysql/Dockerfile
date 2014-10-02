@@ -1,4 +1,4 @@
-FROM ubuntu:13.10
+FROM ubuntu:14.10
 MAINTAINER danielrs
 
 RUN apt-get update

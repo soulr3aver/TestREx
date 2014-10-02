@@ -1,12 +1,10 @@
-FROM ubuntu:13.10
+FROM ubuntu:14.10
 MAINTAINER danielrs
 
-RUN mkdir -p /data/db
-
 RUN apt-get update
+RUN apt-get install curl
 RUN apt-get -y install nodejs
 RUN apt-get -y install npm
-
 
 EXPOSE 8888
 
