@@ -13,6 +13,7 @@ mapped_port_out = 49160
 report_verbosity = "DEBUG"
 spoiled_mode = False
 browser_visible = False
+timeout = 5
 ################################################################################
 
 ###################################file config##################################

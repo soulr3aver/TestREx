@@ -104,7 +104,7 @@ class ExecutionEngine():
 
         container_id = self.start_container(image_name)
         self.docker_containers.append(container_id)
-        time.sleep(5)
+        time.sleep(settings.timeout)
 
     
     def build_image(self, config_path, app_path, image_name):
@@ -122,45 +122,14 @@ class ExecutionEngine():
         return container_id
 
     def inject_exploits(self, exploit_path):
-        #EXPERIMENTAL: run BugBox eploits -- replace their urls with our mapped ports and then
-        #load the exploit
+        time.sleep(settings.timeout)
         exploitClassName = "Exploit"
-        if ("bugbox" in exploit_path):
-            exploit = open(exploit_path,'r')
-            exploit_temp_path = exploit_path.replace(".py", "_temp.py")
-            exploit_temp = open(exploit_temp_path,'w')
-
-            for line in exploit.readlines():
-                new_line = line.replace("localhost", "localhost:"+str(settings.mapped_port_out))
-                new_line = new_line.replace("127.0.0.1", "localhost:"+str(settings.mapped_port_out))
-                exploit_temp.write(new_line)
-
-            exploit.close()
-            exploit_temp.close()
-
-            sys.path.append(os.path.dirname(exploit_temp_path))
-            exploitModule = imp.load_source(exploitClassName, exploit_temp_path)
-
-        else:
-            exploitModule = imp.load_source(exploitClassName, exploit_path)
-
+        exploitModule = imp.load_source(exploitClassName, exploit_path)
         exploitClass = getattr(exploitModule, exploitClassName)
         exploitInstance = exploitClass()
-
-        if ("bugbox" in exploit_path):
-            exploitInstance.exploit()
-            self.normalize_bugbox_info(exploitInstance)
-        else:
-            exploitInstance.exploit(settings.report_verbosity)
-            self.write_log(exploitInstance.__class__.__name__, exploitInstance.Log)
+        exploitInstance.exploit(settings.report_verbosity)
+        self.write_log(exploitInstance.__class__.__name__, exploitInstance.Log)
         self.write_testrun_info(exploitInstance, settings.results_filename)
-
-    def normalize_bugbox_info(self, instance):
-        result = "SUCCESS" if (instance.verify()) else "FAILURE"
-        instance.result = result
-        instance.attributes["Container"] = "ubuntu-apache-mysql"
-        instance.time_spent = "N/A"
-        instance.startup_ok = "SUCCESS"
 
     #writes the collected data into a report
     def write_log(self, filename, log):
