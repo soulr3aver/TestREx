@@ -105,6 +105,8 @@ class ExecutionEngine():
         container_id = self.start_container(image_name)
         self.docker_containers.append(container_id)
         time.sleep(settings.timeout)
+        #dirty hack for MongoDB
+        time.sleep(5);
 
     
     def build_image(self, config_path, app_path, image_name):
