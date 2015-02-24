@@ -20,7 +20,7 @@ if __name__ == "__main__":
                       help="Batch run mode", metavar="BATCH__RUN")
 
     parser.add_option("--image", action="store", dest="image",
-                      help="Batch run mode", metavar="IMAGE")
+                      help="Application image to run", metavar="IMAGE")
 
 
     #specify mapped_port_in for the server (the default is "8888" for node.js)
