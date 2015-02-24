@@ -35,15 +35,20 @@ exports.insecure = function(request, response) {
 	var query = "SELECT * FROM users WHERE id='" + login + "' AND pword='" + password + "'";
 
 	server.dbprovider.sendQuery(query, null, function(error, results){
-		if (error != null) {
-			console.log("MySQL ERROR: " + error);
-			return;
-		}	
-		if (results[0] == undefined) {
-			response.send("Access denied!");
+		try {
+			if (error != null) {
+				console.log("MySQL ERROR: " + error);
+				return;
+			}	
+			if (results[0] == undefined) {
+				response.send("Access denied!");
+			}
+			else {
+				response.send("Hello, " + results[0].id + "!");
+			}
 		}
-		else {
-			response.send("Hello, " + results[0].id + "!");
+		catch (e) {
+			response.send("Access denied!");
 		}
 	});		
 }

@@ -1,0 +1,11 @@
+127.0.0.1 fonts.googleapis.com
+127.0.0.1 1.gravatar.com
+127.0.0.1 wordpress.org
+127.0.0.1 gmpg.org
+127.0.0.1 0.gravatar.com
+127.0.0.1 http://www.w3.org
+127.0.0.1 update.wordpress.org
+127.0.0.1 api.wordpress.org
+127.0.0.1 ajax.aspnetcdn.com
+127.0.0.1 planet.wordpress.org
+127.0.0.1 codex.wordpress.org

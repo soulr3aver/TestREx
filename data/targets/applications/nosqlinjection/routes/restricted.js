@@ -39,16 +39,21 @@ exports.insecure = function(request, response) {
 	var password = request.body.passwd;
 	var loginParam = eval("({ _id: '" + login + "', pword : '" + password + "'})");
 	
-	server.dbprovider.findOne("users", loginParam, function(error, item) {	
-		if (error != null) {
-			response.send("MongoDB ERROR: " + error);			
-			return;
+	server.dbprovider.findOne("users", loginParam, function(error, item) {
+		try {	
+			if (error != null) {
+				response.send("MongoDB ERROR: " + error);			
+				return;
+			}
+			if (item != null) {
+				response.send("Hello, " + item._id + "!");
+			}
+			else {
+				response.send("Access denied!");
+			}
 		}
-		if (item != null) {
-			response.send("Hello, " + item._id + "!");
-		}
-		else {
-			response.send("Access denied!");
+		catch (e){
+			response.send("Access denied!")
 		}
 	});
 }
