@@ -7,4 +7,4 @@ CMD cd /var/www/ghost
 
 EXPOSE 8888
 
-CMD node index.js
+CMD nodejs index.js
