@@ -5,4 +5,4 @@ ADD . /var/www/ghost
 
 CMD cd /var/www/ghost
 
-nodejs index.js
+CMD node index.js

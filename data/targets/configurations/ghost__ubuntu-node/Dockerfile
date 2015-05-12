@@ -5,4 +5,6 @@ ADD . /var/www/ghost
 
 CMD cd /var/www/ghost
 
-node index.js
+EXPOSE 8888
+
+CMD node index.js
