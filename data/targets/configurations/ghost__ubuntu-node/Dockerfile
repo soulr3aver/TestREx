@@ -3,8 +3,4 @@ MAINTAINER lucam
 
 ADD . /var/www/ghost
 
-CMD cd /var/www/ghost
-
-EXPOSE 8888
-
-CMD nodejs index.js
+CMD nodejs /var/www/ghost/index.js
