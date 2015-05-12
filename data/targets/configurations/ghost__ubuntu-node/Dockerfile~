@@ -1,0 +1,8 @@
+FROM testbed/ubuntu-node
+MAINTAINER lucam
+
+ADD . /var/www/ghost
+
+CMD cd /var/www/ghost
+
+nodejs index.js
